@@ -7,6 +7,8 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+    volumes:
+       - ./web:/var/www/html
     # restart: unless-stopped
     depends_on:
       - wordpress
@@ -24,7 +26,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
-       - ./requirements/wordpress/tools:/var/www/
+       - ./web:/var/www/html
     depends_on:
         - mariadb
     # secrets:
