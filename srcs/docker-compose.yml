@@ -8,35 +8,56 @@ services:
     ports:
       - "80:80"
     volumes:
-       - ./web:/var/www/html
-    # restart: unless-stopped
+       - ./requirements/wordpress/web:/var/www/html
     depends_on:
       - wordpress
-    # secrets:
-    #   - db_root_password
-    #   - db_password
+   # restart: unless-stopped
 
   wordpress:
     networks:
       [mynet]
-    #volumes:
-    #  - ./requirements/wordpress/tools/html:/var/www/html
     build: ./requirements/wordpress
     container_name: wordpress
-    ports:
-      - "9000:9000"
+    env_file:
+      - .env
     volumes:
-       - ./web:/var/www/html
+       - ./requirements/wordpress/web:/var/www/html
+    environment:
+      - WORDPRESS_DB_PASSWORD_FILE=/run/secrets/wordpress_db
+    secrets:
+      - wordpress_db
+      - timo_pass
+      - admin_pass
     depends_on:
-        - mariadb
-    # secrets:
-    #   - wp_password
+      - mariadb
+   # restart: unless-stopped
 
   mariadb:
     networks:
       [mynet]
-    build: requirements/mariadb
+    build: ./requirements/mariadb
     container_name: mariadb
+    env_file:
+      - .env
+    volumes:
+      - ./requirements/mariadb/data:/var/lib/mysql
+    environment:
+      - MYSQL_PASSWORD_FILE=/run/secrets/wordpress_db
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root
+    secrets:
+      - wordpress_db
+      - mysql_root
+    #restart: unless-stopped
+
+secrets:
+  wordpress_db:
+    file: ./secrets/wordpress_db.txt
+  mysql_root:
+    file: ./secrets/mysql_root.txt
+  timo_pass:
+    file: ./secrets/timo_pass.txt
+  admin_pass:
+    file: ./secrets/admin_pass.txt 
 
 networks:
   mynet:

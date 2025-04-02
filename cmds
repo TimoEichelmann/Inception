@@ -1,0 +1,13 @@
+# 1. Stop and remove all containers, networks, volumes
+docker-compose down -v --rmi all --remove-orphans
+
+# 2. Remove ALL Docker artifacts (images, volumes, networks, build cache)
+docker system prune -a --volumes --force
+
+# 3. Verify cleanup (should show no containers/images/volumes)
+docker ps -a
+docker images
+docker volume ls
+
+# 4. Rebuild fresh
+docker-compose up --build
